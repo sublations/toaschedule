@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Track your Tombs of Amascut purple rewards schedule">
+    <meta name="theme-color" content="#2e1a0e">
+    <title>ToA Purple Tracker - Schedule</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', 'Consolas', monospace;
+            background: #2e1a0e;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #ffff00;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: #3e2723;
+            border: 2px solid #000;
+            box-shadow: 
+                inset 1px 1px 0 #5d4037,
+                inset -1px -1px 0 #1a1410;
+        }
+
+        .header h1 {
+            font-size: clamp(24px, 5vw, 48px);
+            color: #ffff00;
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .header h2 {
+            font-size: clamp(18px, 3vw, 24px);
+            color: #ff9000;
+            text-shadow: 1px 1px 0 #000;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: clamp(14px, 2vw, 16px);
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
+            line-height: 1.4;
+        }
+
+        .clan-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 12px;
+            background: #1a1410;
+            border: 1px solid #000;
+        }
+
+        .clan-info span {
+            font-size: 16px;
+            color: #00ffff;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Control Buttons */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: clamp(14px, 2vw, 16px);
+            padding: 12px 24px;
+            border: 2px outset #999;
+            background: #5d4037;
+            color: #fff;
+            cursor: pointer;
+            text-shadow: 1px 1px 0 #000;
+            box-shadow: 2px 2px 0 #000;
+            transition: all 0.1s ease;
+            min-height: 44px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background: #6d4c41;
+            border-color: #aaa;
+        }
+
+        .btn:active {
+            border-style: inset;
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .btn:focus {
+            outline: 2px solid #ffff00;
+            outline-offset: 2px;
+        }
+
+        /* Schedule Container */
+        #scheduleContainer {
+            background: #3e2723;
+            border: 2px solid #000;
+            padding: 20px;
+            box-shadow: 
+                inset 1px 1px 0 #5d4037,
+                inset -1px -1px 0 #1a1410;
+        }
+
+        /* Table Styles */
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .schedule-table th {
+            background: #2c1810;
+            color: #ff9000;
+            padding: 12px;
+            font-size: 16px;
+            text-shadow: 1px 1px 0 #000;
+            border: 1px solid #000;
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .schedule-table td {
+            background: #3e2723;
+            color: #fff;
+            padding: 14px 12px;
+            border: 1px solid #000;
+            font-size: 14px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .schedule-table tr:nth-child(even) td {
+            background: #4a2f28;
+        }
+
+        .schedule-table tr:hover td {
+            background: #5d4037;
+        }
+
+        .edit-mode .schedule-table tr:hover td {
+            cursor: pointer;
+        }
+
+        .week-cell {
+            min-width: 180px;
+        }
+
+        .current-week-badge {
+            display: inline-block;
+            background: #2d5016;
+            color: #00ff00;
+            padding: 4px 12px;
+            border: 1px solid #000;
+            font-size: clamp(12px, 2vw, 14px);
+            text-shadow: 1px 1px 0 #000;
+            font-weight: bold;
+        }
+
+        .timezone-info {
+            display: block;
+            font-size: clamp(10px, 1.5vw, 12px);
+            color: #aaa;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Item Display */
+        .item-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .item-img {
+            width: 36px;
+            height: 36px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .item-name {
+            font-size: 14px;
+            color: #ff00ff;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .week-date {
+            color: #ffff00;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Current Week Highlight */
+        .current-week td {
+            background: #4a3520 !important;
+            border: 1px solid #ff9000 !important;
+        }
+
+        /* Edit Mode */
+        .edit-mode .schedule-table tr {
+            cursor: pointer;
+        }
+
+        .edit-mode .schedule-table tr:hover td {
+            background: #6d4c41 !important;
+        }
+
+        /* Item Selector Modal */
+        .item-selector {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #3e2723;
+            border: 3px solid #000;
+            padding: 20px;
+            z-index: 10000;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 
+                inset 1px 1px 0 #5d4037,
+                inset -1px -1px 0 #1a1410,
+                0 0 0 2000px rgba(0,0,0,0.7);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+        }
+
+        .item-selector h3 {
+            color: #ff9000;
+            text-shadow: 1px 1px 0 #000;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .item-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            margin: 5px 0;
+            background: #4a2f28;
+            border: 1px solid #000;
+            cursor: pointer;
+            transition: background 0.1s;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+
+        .item-option:hover {
+            background: #5d4037;
+        }
+
+        .item-option:focus {
+            outline: 2px solid #ffff00;
+            outline-offset: -2px;
+        }
+
+        .item-option img {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+        }
+
+        .item-option span {
+            color: #ff00ff;
+            text-shadow: 1px 1px 0 #000;
+            font-size: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #ffff00;
+            font-size: 12px;
+            background: #3e2723;
+            border: 2px solid #000;
+            box-shadow: 
+                inset 1px 1px 0 #5d4037,
+                inset -1px -1px 0 #1a1410;
+        }
+
+        .footer a {
+            color: #00ffff;
+            text-decoration: none;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .footer a:hover {
+            color: #fff;
+        }
+
+        .footer p {
+            text-shadow: 1px 1px 0 #000;
+            margin: 5px 0;
+        }
+
+        /* Capture Area */
+        #captureArea {
+            background: #2e1a0e;
+            padding: 40px;
+            position: relative;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #3e2723;
+            color: #ffff00;
+            padding: 20px 40px;
+            border: 2px solid #000;
+            font-size: 16px;
+            text-shadow: 1px 1px 0 #000;
+            box-shadow: 
+                inset 1px 1px 0 #5d4037,
+                inset -1px -1px 0 #1a1410,
+                4px 4px 0 #000;
+            z-index: 9999;
+            animation: fadeInOut 2s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+
+        /* Decorative Sarcophagus */
+        .sarcophagus {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 200px;
+            height: 200px;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%235d4037" x="20" y="10" width="60" height="80" rx="5"/><rect fill="%234a2f28" x="25" y="15" width="50" height="70" rx="3"/><circle fill="%23ff9000" cx="50" cy="50" r="15"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Input Styles */
+        input[type="text"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            background: #4a2f28;
+            border: 2px solid #000;
+            color: #fff;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: clamp(12px, 2vw, 14px);
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.5);
+            min-height: 44px;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus {
+            outline: 2px solid #ffff00;
+            outline-offset: 2px;
+            border-color: #ff9000;
+        }
+
+        label {
+            color: #ff9000;
+            display: block;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 0 #000;
+            font-size: clamp(12px, 2vw, 14px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            #captureArea {
+                padding: 20px 10px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .clan-info {
+                flex-direction: column;
+                gap: 8px;
+                padding: 10px;
+            }
+            
+            .schedule-table th,
+            .schedule-table td {
+                padding: 10px 8px;
+                font-size: clamp(11px, 2vw, 13px);
+            }
+            
+            .item-img {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .item-name {
+                font-size: clamp(11px, 2vw, 13px);
+            }
+
+            .week-cell {
+                min-width: 120px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .sarcophagus {
+                width: 120px;
+                height: 120px;
+                opacity: 0.3;
+            }
+
+            .item-selector {
+                max-width: 90%;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #captureArea {
+                padding: 15px 5px;
+            }
+
+            .header {
+                padding: 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .schedule-table {
+                font-size: 11px;
+            }
+
+            .sarcophagus {
+                display: none;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .controls {
+                display: none;
+            }
+
+            body {
+                background: #fff;
+            }
+
+            .sarcophagus {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="captureArea">
+            <div class="header" role="banner">
+                <h1>TOMBS OF AMASCUT</h1>
+                <h2 id="headerTitle">Weekly Purple Tracker</h2>
+                <div class="clan-info">
+                    <span id="hostName">RSN: Player Name</span>
+                </div>
+                <p id="headerDescription">Track your ToA purple progress week by week</p>
+                <span class="timezone-info" id="timezoneInfo">Loading timezone...</span>
+            </div>
+
+            <div id="scheduleContainer" role="main">
+                <table class="schedule-table" role="table" aria-label="ToA Purple Rewards Schedule">
+                    <thead>
+                        <tr>
+                            <th class="week-cell" scope="col">Week Starting</th>
+                            <th scope="col">Featured Purple Reward</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                        <!-- Schedule will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="sarcophagus"></div>
+        </div>
+
+        <div class="controls" role="toolbar" aria-label="Schedule controls">
+            <button class="btn" onclick="app.showSettings()" aria-label="Open settings">⚙️ Settings</button>
+            <button class="btn" onclick="app.generateSchedule()" aria-label="Generate random schedule">🎲 Roll Random Schedule</button>
+            <button class="btn" onclick="app.toggleEditMode()" id="editBtn" aria-label="Toggle edit mode">✏️ Edit Schedule</button>
+            <button class="btn" onclick="app.captureSchedule()" aria-label="Download schedule as image">💾 Download Image</button>
+        </div>
+    </div>
+
+    <!-- Use html2canvas library for screenshot -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <script>
+        'use strict';
+
+        /**
+         * Main Application Object
+         * Handles all ToA Giveaway Schedule functionality
+         */
+        const app = {
+            // Configuration
+            config: {
+                storageKey: 'toaSchedule',
+                settingsKey: 'toaSettings'
+            },
+
+            // Default settings
+            defaultSettings: {
+                startDate: null, // Will be set to current date on first load
+                endDate: null,   // Will be set to end of current year on first load
+                title: 'Weekly Purple Tracker',
+                playerName: 'RSN: Player Name',
+                description: 'Track your ToA purple progress week by week'
+            },
+
+            // State
+            state: {
+                editMode: false,
+                currentEditingWeek: null
+            },
+
+            // Purple Rewards Data - Using OSRS Wiki URLs for images
+            purpleRewards: [
+                { name: "Tumeken's Shadow", image: "https://oldschool.runescape.wiki/images/Tumeken%27s_shadow_%28uncharged%29_detail.png?2f501" },
+                { name: "Elidinis' Ward", image: "https://oldschool.runescape.wiki/images/Elidinis%27_ward_detail.png?628ee" },
+                { name: "Masori Mask", image: "https://oldschool.runescape.wiki/images/Masori_mask_detail.png?d1849" },
+                { name: "Masori Body", image: "https://oldschool.runescape.wiki/images/Masori_body_detail.png?d1849" },
+                { name: "Masori Chaps", image: "https://oldschool.runescape.wiki/images/Masori_chaps_detail.png?d1849" },
+                { name: "Osmumten's Fang", image: "https://oldschool.runescape.wiki/images/Osmumten%27s_fang_detail.png?f7e0c" },
+                { name: "Lightbearer", image: "https://oldschool.runescape.wiki/images/Lightbearer_detail.png?a1b73" }
+            ],
+
+            /**
+             * Initialize the application
+             */
+            init() {
+                this.displayTimezone();
+                this.ensureDefaultDates();
+                this.loadSettings();
+                if (!this.loadSavedSchedule()) {
+                    this.generateSchedule();
+                }
+            },
+
+            /**
+             * Ensure default dates are set
+             */
+            ensureDefaultDates() {
+                const settings = this.getSettings();
+                let needsSave = false;
+
+                // If no start date, default to current week's Sunday
+                if (!settings.startDate) {
+                    const today = new Date();
+                    const dayOfWeek = today.getDay();
+                    const sunday = new Date(today);
+                    sunday.setDate(today.getDate() - dayOfWeek);
+                    sunday.setHours(0, 0, 0, 0);
+                    settings.startDate = sunday.toISOString().split('T')[0];
+                    needsSave = true;
+                }
+
+                // If no end date, default to end of next year
+                if (!settings.endDate) {
+                    const nextYear = new Date().getFullYear() + 1;
+                    settings.endDate = `${nextYear}-12-31`;
+                    needsSave = true;
+                }
+
+                if (needsSave) {
+                    this.saveSettings(settings);
+                }
+            },
+
+            /**
+             * Get current settings or defaults
+             */
+            getSettings() {
+                try {
+                    const saved = localStorage.getItem(this.config.settingsKey);
+                    if (saved) {
+                        return { ...this.defaultSettings, ...JSON.parse(saved) };
+                    }
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
+                }
+                return { ...this.defaultSettings };
+            },
+
+            /**
+             * Display user's local timezone information
+             */
+            displayTimezone() {
+                try {
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    const now = new Date();
+                    const offset = -now.getTimezoneOffset() / 60;
+                    const offsetStr = offset >= 0 ? `+${offset}` : `${offset}`;
+                    const tzAbbr = now.toLocaleTimeString('en-US', { timeZoneName: 'short' }).split(' ').pop();
+                    
+                    document.getElementById('timezoneInfo').textContent = 
+                        `Times shown in your local timezone: ${timezone} (UTC${offsetStr} / ${tzAbbr})`;
+                } catch (error) {
+                    console.error('Failed to get timezone:', error);
+                    document.getElementById('timezoneInfo').textContent = 'Times shown in your local timezone';
+                }
+            },
+
+            /**
+             * Load saved settings
+             */
+            loadSettings() {
+                try {
+                    const settings = this.getSettings();
+                    document.getElementById('headerTitle').textContent = settings.title;
+                    document.getElementById('hostName').textContent = settings.playerName;
+                    document.getElementById('headerDescription').textContent = settings.description;
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
+                }
+            },
+
+            /**
+             * Save settings
+             */
+            saveSettings(settings) {
+                try {
+                    localStorage.setItem(this.config.settingsKey, JSON.stringify(settings));
+                    this.loadSettings();
+                } catch (error) {
+                    console.error('Failed to save settings:', error);
+                }
+            },
+
+            /**
+             * Show settings modal
+             */
+            showSettings() {
+                const settings = this.getSettings();
+                
+                // Create backdrop
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop';
+                backdrop.id = 'modalBackdrop';
+                backdrop.setAttribute('role', 'presentation');
+                backdrop.onclick = () => this.closeSettings();
+                
+                const modal = document.createElement('div');
+                modal.className = 'item-selector';
+                modal.id = 'settingsModal';
+                modal.style.maxWidth = '500px';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-labelledby', 'settingsTitle');
+                modal.setAttribute('aria-modal', 'true');
+                
+                modal.innerHTML = `
+                    <h3 id="settingsTitle">⚙️ Customize Your Schedule</h3>
+                    <div style="margin: 15px 0;">
+                        <label for="settingTitle">Title:</label>
+                        <input type="text" id="settingTitle" value="${this.escapeHtml(settings.title)}" 
+                            aria-label="Schedule title" maxlength="100" />
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label for="settingPlayer">Player Name / Host:</label>
+                        <input type="text" id="settingPlayer" value="${this.escapeHtml(settings.playerName)}" 
+                            aria-label="Player name or host" maxlength="50" />
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label for="settingDesc">Description:</label>
+                        <input type="text" id="settingDesc" value="${this.escapeHtml(settings.description)}" 
+                            aria-label="Schedule description" maxlength="200" />
+                    </div>
+                    <hr style="border: 1px solid #5d4037; margin: 20px 0;" />
+                    <div style="margin: 15px 0;">
+                        <label for="settingStartDate">Start Date (first week):</label>
+                        <input type="date" id="settingStartDate" value="${settings.startDate}" 
+                            aria-label="Schedule start date" />
+                        <small style="display: block; color: #aaa; margin-top: 5px; font-size: 11px;">
+                            Schedule will start on the Sunday of this week
+                        </small>
+                    </div>
+                    <div style="margin: 15px 0;">
+                        <label for="settingEndDate">End Date (last week):</label>
+                        <input type="date" id="settingEndDate" value="${settings.endDate}" 
+                            aria-label="Schedule end date" />
+                        <small style="display: block; color: #aaa; margin-top: 5px; font-size: 11px;">
+                            Schedule will end on the Saturday of this week
+                        </small>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+                        <button class="btn" onclick="app.applySettings()" style="flex: 1; min-width: 120px;" aria-label="Save settings">✓ Save</button>
+                        <button class="btn" onclick="app.closeSettings()" style="flex: 1; min-width: 120px;" aria-label="Cancel and close">✕ Cancel</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(backdrop);
+                document.body.appendChild(modal);
+                
+                // Trap focus in modal
+                const focusableElements = modal.querySelectorAll('input, button');
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                modal.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeSettings();
+                    }
+                    if (e.key === 'Tab') {
+                        if (e.shiftKey && document.activeElement === firstElement) {
+                            e.preventDefault();
+                            lastElement.focus();
+                        } else if (!e.shiftKey && document.activeElement === lastElement) {
+                            e.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
+                });
+                
+                // Focus first input
+                setTimeout(() => firstElement.focus(), 100);
+            },
+
+            /**
+             * Escape HTML to prevent XSS
+             * @param {string} text - Text to escape
+             * @returns {string} Escaped text
+             */
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+
+            /**
+             * Apply settings
+             */
+            applySettings() {
+                const startDate = document.getElementById('settingStartDate').value;
+                const endDate = document.getElementById('settingEndDate').value;
+                
+                // Validate dates
+                if (!startDate || !endDate) {
+                    this.showToast('❌ Please set both start and end dates');
+                    return;
+                }
+                
+                if (new Date(startDate) > new Date(endDate)) {
+                    this.showToast('❌ Start date must be before end date');
+                    return;
+                }
+                
+                const oldSettings = this.getSettings();
+                const settings = {
+                    title: document.getElementById('settingTitle').value.trim(),
+                    playerName: document.getElementById('settingPlayer').value.trim(),
+                    description: document.getElementById('settingDesc').value.trim(),
+                    startDate: startDate,
+                    endDate: endDate
+                };
+                
+                this.saveSettings(settings);
+                this.closeSettings();
+                
+                // If dates changed, regenerate schedule
+                if (oldSettings.startDate !== startDate || oldSettings.endDate !== endDate) {
+                    this.generateSchedule();
+                    this.showToast('✓ Settings saved! Schedule regenerated.');
+                } else {
+                    this.loadSettings();
+                    this.showToast('✓ Settings saved!');
+                }
+            },
+
+            /**
+             * Close settings modal
+             */
+            closeSettings() {
+                const modal = document.getElementById('settingsModal');
+                const backdrop = document.getElementById('modalBackdrop');
+                if (modal) modal.remove();
+                if (backdrop) backdrop.remove();
+            },
+
+            /**
+             * Get all week starting dates (Sundays) from start to end date
+             * @returns {Array<Date>} Array of Sunday dates
+             */
+            getWeekStartDates() {
+                const settings = this.getSettings();
+                const startDate = new Date(settings.startDate);
+                const endDate = new Date(settings.endDate);
+                
+                const weeks = [];
+                const current = new Date(startDate);
+                
+                // Find the previous or current Sunday
+                const dayOfWeek = current.getDay();
+                current.setDate(current.getDate() - dayOfWeek);
+                current.setHours(0, 0, 0, 0);
+                
+                endDate.setHours(23, 59, 59, 999);
+                
+                while (current <= endDate) {
+                    weeks.push(new Date(current));
+                    current.setDate(current.getDate() + 7);
+                }
+                
+                return weeks;
+            },
+
+            /**
+             * Format date for display (user's local timezone)
+             * @param {Date} date - Date to format
+             * @returns {string} Formatted date string
+             */
+            formatDate(date) {
+                try {
+                    return new Intl.DateTimeFormat('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    }).format(date);
+                } catch (error) {
+                    // Fallback to basic formatting
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+                }
+            },
+
+            /**
+             * Check if a week is the current week (user's local time)
+             * @param {Date} weekDate - Start date of the week
+             * @returns {boolean} True if current week
+             */
+            isCurrentWeek(weekDate) {
+                // Get current date in user's local timezone
+                const today = new Date();
+                const localToday = new Date(today.toLocaleString('en-US', { 
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone 
+                }));
+                localToday.setHours(0, 0, 0, 0);
+                
+                const weekStart = new Date(weekDate);
+                weekStart.setHours(0, 0, 0, 0);
+                
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekEnd.getDate() + 7);
+                
+                return localToday >= weekStart && localToday < weekEnd;
+            },
+
+            /**
+             * Shuffle an array (Fisher-Yates algorithm)
+             * @param {Array} array - Array to shuffle
+             * @returns {Array} Shuffled array
+             */
+            shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray;
+            },
+
+            /**
+             * Generate a new random schedule
+             */
+            generateSchedule() {
+                const weeks = this.getWeekStartDates();
+                
+                if (weeks.length === 0) {
+                    this.showToast('❌ No weeks to schedule. Check date range.');
+                    return;
+                }
+                
+                let allItems = [];
+                
+                // Fill schedule with shuffled items
+                while (allItems.length < weeks.length) {
+                    const shuffled = this.shuffleArray(this.purpleRewards);
+                    allItems = allItems.concat(shuffled);
+                }
+                
+                allItems = allItems.slice(0, weeks.length);
+                
+                this.saveSchedule(allItems);
+                this.renderSchedule(weeks, allItems);
+                this.showToast('🎲 New schedule generated!');
+            },
+
+            /**
+             * Render the schedule to the DOM
+             * @param {Array<Date>} weeks - Array of week start dates
+             * @param {Array<Object>} items - Array of purple reward objects
+             */
+            renderSchedule(weeks, items) {
+                const scheduleBody = document.getElementById('scheduleBody');
+                scheduleBody.innerHTML = '';
+
+                weeks.forEach((week, index) => {
+                    const item = items[index];
+                    const row = document.createElement('tr');
+                    const isCurrent = this.isCurrentWeek(week);
+                    
+                    if (isCurrent) {
+                        row.classList.add('current-week');
+                    }
+                    
+                    // Week date cell
+                    const dateCell = document.createElement('td');
+                    dateCell.className = 'week-cell';
+                    dateCell.setAttribute('data-week-index', index);
+                    
+                    if (isCurrent) {
+                        dateCell.innerHTML = '<span class="current-week-badge" role="status" aria-label="Current week">CURRENT WEEK</span>';
+                    } else {
+                        dateCell.innerHTML = `<span class="week-date">${this.formatDate(week)}</span>`;
+                    }
+                    
+                    // Item cell
+                    const itemCell = document.createElement('td');
+                    itemCell.innerHTML = `
+                        <div class="item-cell">
+                            <img src="${item.image}" alt="${item.name}" class="item-img" loading="lazy" />
+                            <span class="item-name">${item.name}</span>
+                        </div>
+                    `;
+                    
+                    // Add aria-label for accessibility
+                    row.setAttribute('role', 'row');
+                    row.setAttribute('aria-label', `Week of ${this.formatDate(week)}: ${item.name}`);
+                    
+                    // Add click handler for edit mode
+                    row.addEventListener('click', () => {
+                        if (this.state.editMode) {
+                            this.openItemSelector(index);
+                        }
+                    });
+                    
+                    row.appendChild(dateCell);
+                    row.appendChild(itemCell);
+                    scheduleBody.appendChild(row);
+                });
+            },
+
+            /**
+             * Save schedule to localStorage
+             * @param {Array<Object>} items - Array of purple reward objects
+             */
+            saveSchedule(items) {
+                try {
+                    localStorage.setItem(this.config.storageKey, JSON.stringify(items));
+                } catch (error) {
+                    console.error('Failed to save schedule:', error);
+                }
+            },
+
+            /**
+             * Load saved schedule from localStorage
+             * @returns {boolean} True if schedule was loaded
+             */
+            loadSavedSchedule() {
+                try {
+                    const savedSchedule = localStorage.getItem(this.config.storageKey);
+                    
+                    if (savedSchedule) {
+                        const weeks = this.getWeekStartDates();
+                        const items = JSON.parse(savedSchedule);
+                        
+                        // If schedule length matches weeks, use it
+                        if (items.length === weeks.length) {
+                            this.renderSchedule(weeks, items);
+                            return true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load schedule:', error);
+                }
+                
+                return false;
+            },
+
+            /**
+             * Toggle edit mode
+             */
+            toggleEditMode() {
+                this.state.editMode = !this.state.editMode;
+                const container = document.getElementById('scheduleContainer');
+                const editBtn = document.getElementById('editBtn');
+                
+                if (this.state.editMode) {
+                    container.classList.add('edit-mode');
+                    editBtn.textContent = '✓ Done Editing';
+                    editBtn.style.background = '#2d5016';
+                    this.showToast('✏️ Click any week to change item');
+                } else {
+                    container.classList.remove('edit-mode');
+                    editBtn.textContent = '✏️ Edit Schedule';
+                    editBtn.style.background = '#5d4037';
+                    this.showToast('💾 Changes saved!');
+                }
+            },
+
+            /**
+             * Open item selector modal
+             * @param {number} weekIndex - Index of the week to edit
+             */
+            openItemSelector(weekIndex) {
+                this.state.currentEditingWeek = weekIndex;
+                
+                // Create backdrop
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop';
+                backdrop.id = 'modalBackdrop';
+                backdrop.setAttribute('role', 'presentation');
+                backdrop.onclick = () => this.closeItemSelector();
+                
+                const modal = document.createElement('div');
+                modal.className = 'item-selector';
+                modal.id = 'itemSelector';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-labelledby', 'itemSelectorTitle');
+                modal.setAttribute('aria-modal', 'true');
+                
+                const title = document.createElement('h3');
+                title.id = 'itemSelectorTitle';
+                title.textContent = 'Select Purple Reward:';
+                modal.appendChild(title);
+                
+                this.purpleRewards.forEach((reward, index) => {
+                    const option = document.createElement('div');
+                    option.className = 'item-option';
+                    option.setAttribute('role', 'button');
+                    option.setAttribute('tabindex', '0');
+                    option.setAttribute('aria-label', `Select ${reward.name}`);
+                    option.innerHTML = `
+                        <img src="${reward.image}" alt="" loading="lazy" />
+                        <span>${reward.name}</span>
+                    `;
+                    
+                    const selectFn = () => this.selectItem(reward);
+                    option.addEventListener('click', selectFn);
+                    option.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            selectFn();
+                        }
+                    });
+                    
+                    modal.appendChild(option);
+                });
+                
+                // Handle escape key
+                modal.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.closeItemSelector();
+                    }
+                });
+                
+                document.body.appendChild(backdrop);
+                document.body.appendChild(modal);
+                
+                // Focus first option
+                setTimeout(() => {
+                    const firstOption = modal.querySelector('.item-option');
+                    if (firstOption) firstOption.focus();
+                }, 100);
+            },
+
+            /**
+             * Close item selector modal
+             */
+            closeItemSelector() {
+                const modal = document.getElementById('itemSelector');
+                const backdrop = document.getElementById('modalBackdrop');
+                if (modal) modal.remove();
+                if (backdrop) backdrop.remove();
+            },
+
+
+
+            /**
+             * Select an item from the selector
+             * @param {Object} item - Selected purple reward object
+             */
+            selectItem(item) {
+                try {
+                    const savedSchedule = JSON.parse(localStorage.getItem(this.config.storageKey));
+                    savedSchedule[this.state.currentEditingWeek] = item;
+                    this.saveSchedule(savedSchedule);
+                    
+                    const weeks = this.getWeekStartDates();
+                    this.renderSchedule(weeks, savedSchedule);
+                    
+                    this.closeItemSelector();
+                    this.showToast(`✓ Updated to ${item.name}`);
+                } catch (error) {
+                    console.error('Failed to select item:', error);
+                    this.showToast('❌ Failed to update schedule');
+                }
+            },
+
+            /**
+             * Capture and download the schedule as an image
+             */
+            async captureSchedule() {
+                const captureArea = document.getElementById('captureArea');
+                const wasInEditMode = this.state.editMode;
+                
+                // Temporarily exit edit mode
+                if (this.state.editMode) {
+                    this.state.editMode = false;
+                    document.getElementById('scheduleContainer').classList.remove('edit-mode');
+                }
+                
+                try {
+                    this.showToast('📸 Generating image...');
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    const canvas = await html2canvas(captureArea, {
+                        backgroundColor: '#2e1a0e',
+                        scale: 2,
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true
+                    });
+                    
+                    // Download the image
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            this.showToast('❌ Failed to create image');
+                            return;
+                        }
+                        
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        const timestamp = new Date().toISOString().split('T')[0];
+                        link.download = `ToA-Schedule-${timestamp}.png`;
+                        link.href = url;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        
+                        this.showToast('💾 Image downloaded!');
+                    }, 'image/png', 0.95);
+                    
+                } catch (error) {
+                    console.error('Capture error:', error);
+                    this.showToast('❌ Error capturing image. Try screenshot instead.');
+                } finally {
+                    // Restore edit mode
+                    if (wasInEditMode) {
+                        this.state.editMode = true;
+                        document.getElementById('scheduleContainer').classList.add('edit-mode');
+                    }
+                }
+            },
+
+            /**
+             * Show a toast notification
+             * @param {string} message - Message to display
+             */
+            showToast(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                toast.setAttribute('role', 'status');
+                toast.setAttribute('aria-live', 'polite');
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.remove();
+                }, 2000);
+            }
+        };
+
+        // Initialize application when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
